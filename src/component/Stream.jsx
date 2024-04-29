@@ -5,6 +5,7 @@ import { useRef } from 'react';
 const Stream = () => {
     const videoRef = useRef(null);
     const streamRef = useRef(null);
+    const mediaRef = useRef(null);
     const [recording, setRecording] = useState(false);
 
     const stream = async () => {
@@ -39,17 +40,20 @@ const Stream = () => {
 
     const startRecording = () => {
         setRecording(true);
-        const mediaRecorder = new MediaRecorder(streamRef.current);
-        mediaRecorder.start();
+        // const mediaRecorder = new MediaRecorder(streamRef.current);
+        // mediaRecorder.start();
+        mediaRef.current = new MediaRecorder(streamRef.current);
+        mediaRef.current.start();
         const chunks = [];
-        mediaRecorder.ondataavailable = (e) => {
+        mediaRef.current.ondataavailable = (e) => {
             if (e.data.size > 0) {
                 chunks.push(e.data);
             }
         };
-        mediaRecorder.onstop = () => {
+        mediaRef.current.onstop = () => {
             const blob = new Blob(chunks, { type: 'video/mp4' });
             download(blob, 'recording.mp4');
+            videoRef.current.controls = true;
         };
     };
     const download = (blob, filename) => {
@@ -67,7 +71,7 @@ const Stream = () => {
     };
     const stopRecording = () => {
         setRecording(false);
-        // mediaRecorder.stop();
+        mediaRef.current.stop();
         streamRef.current.getTracks().forEach((track) => track.stop());
     };
 
